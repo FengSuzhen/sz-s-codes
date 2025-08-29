@@ -11,21 +11,21 @@ private:
 	void	transReslt();
 	///////////////////////////////////////////
 	GRBVar
-		yieldC,					//ÏµÍ³±£Ö¤ÏĞÖÃÈİÁ¿
-		yieldGD,				//±£Ö¤ÍâËÍ¹ã¶«µçÁ¿
-		Vol[Iresvr][Iwks],		//ĞîË®
-		Qout[Iresvr][Iwks],		//³ö¿âÁ÷Á¿
-		Qgen[Iresvr][Iwks],		//·¢µçÁ÷Á¿
-		Qspl[Iresvr][Iwks],		//ÆúË®Á÷Á¿
-		XM[Iplant][Iwks],		//¼ìĞŞÈİÁ¿
-		XD[Iplant][Iwks],		//ÊÜ×èÈİÁ¿
-		XR[Iplant][Iwks],		//±¸ÓÃÈİÁ¿
-		XS[Iplant][Iwks],		//ÏĞÖÃÈİÁ¿
-		XW[Iplant][Iwks],		//¹¤×÷ÈİÁ¿
-		Engy[Iplant][Iwks],		//Ê¡ÄÚµçÁ¿
-		yLB[Iplant][Iwks],		//¸ººÉÇø¼äÏÂ½ç
-		yUB[Iplant][Iwks],	    //¸ººÉÇø¼äÉÏ½ç
-		sGRB[Iunit][Iwks];		//ÊÇ·ñ½áÊø¼ìĞŞ£¿1-0	
+		yieldC,					//ç³»ç»Ÿä¿è¯é—²ç½®å®¹é‡
+		yieldGD,				//ä¿è¯å¤–é€å¹¿ä¸œç”µé‡
+		Vol[Iresvr][Iwks],		//è“„æ°´
+		Qout[Iresvr][Iwks],		//å‡ºåº“æµé‡
+		Qgen[Iresvr][Iwks],		//å‘ç”µæµé‡
+		Qspl[Iresvr][Iwks],		//å¼ƒæ°´æµé‡
+		XM[Iplant][Iwks],		//æ£€ä¿®å®¹é‡
+		XD[Iplant][Iwks],		//å—é˜»å®¹é‡
+		XR[Iplant][Iwks],		//å¤‡ç”¨å®¹é‡
+		XS[Iplant][Iwks],		//é—²ç½®å®¹é‡
+		XW[Iplant][Iwks],		//å·¥ä½œå®¹é‡
+		Engy[Iplant][Iwks],		//çœå†…ç”µé‡
+		yLB[Iplant][Iwks],		//è´Ÿè·åŒºé—´ä¸‹ç•Œ
+		yUB[Iplant][Iwks],	    //è´Ÿè·åŒºé—´ä¸Šç•Œ
+		sGRB[Iunit][Iwks];		//æ˜¯å¦ç»“æŸæ£€ä¿®ï¼Ÿ1-0	
 								////////////////////////////////////////////
 	void updateLoadE(int wk0, double x[Ihrs + 1], double y[Ihrs + 1]);
 };
@@ -64,22 +64,22 @@ void TSolutnMILP::solveOnce() {
 void TSolutnMILP::modelProblem(GRBModel &model) {
 
 	float	cofVtE = float(Bsc.cofE / 0.36),	//=qr*cofE*7*24*(1E4)/(7*24*60*60)
-		cofQtV = float(Bsc.dysWK * 24 * 0.36), //m3/s -->Íòm3
+		cofQtV = float(Bsc.dysWK * 24 * 0.36), //m3/s -->ä¸‡m3
 		cofPtE = Bsc.dysWK * 24 * Bsc.cofE,
 		cofQtE = Bsc.cofE*Bsc.dysWK * 24; //qr*cofE*7*24
 	int M = 100000000;
 	GRBVar
-		x[Iplant][Iwks],			//kÎ»ÖÃµÄ¸ººÉË®Æ½
-		(*v)[Iplant][Iwks] = new GRBVar[Iplant][Iplant][Iwks],	//ÊÇ·ñÔÚ¸Ã¸ººÉË®Æ½£¿1-0
+		x[Iplant][Iwks],			//kä½ç½®çš„è´Ÿè·æ°´å¹³
+		(*v)[Iplant][Iwks] = new GRBVar[Iplant][Iplant][Iwks],	//æ˜¯å¦åœ¨è¯¥è´Ÿè·æ°´å¹³ï¼Ÿ1-0
 		(*ymin)[Iplant][Iwks] = new GRBVar[Iplant][Iplant][Iwks],//
 		(*ymax)[Iplant][Iwks] = new GRBVar[Iplant][Iplant][Iwks],
 		(*wtMin)[Iwks][Ihrs + 1] = new GRBVar[Iplant][Iwks][Ihrs + 1],
 		(*wtMax)[Iwks][Ihrs + 1] = new GRBVar[Iplant][Iwks][Ihrs + 1];
 
-	//Ä¿±êº¯ÊıÓë±äÁ¿
+	//ç›®æ ‡å‡½æ•°ä¸å˜é‡
 	yieldC = model.addVar(0, GRB_INFINITY, Bsc.wtSprSys*cofPtE, GRB_CONTINUOUS, "yieldC");//OBJ:P4
 	yieldGD = model.addVar(0, GRB_INFINITY, Bsc.wtYieldGD, GRB_CONTINUOUS, "yieldGD");    //OBJ:P2
-	//Ë®¿â----------------------------------
+	//æ°´åº“----------------------------------
 	for (int i = 0; i < Bsc.resvrN; i++) {
 		for (int wk = 0; wk < Bsc.weekN; wk++) {
 			string itStr = com2Str(i, wk);
@@ -93,7 +93,7 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 			Qspl[i][wk] = model.addVar(0, Resvr[i].Qmax, -wtQtE, GRB_CONTINUOUS, "Qspl" + itStr);//OBJ:P1
 		}//t
 	}//i
-	 //µç³§----------------------------------
+	 //ç”µå‚----------------------------------
 	for (int i = 0; i < Bsc.plantN; i++) {
 		for (int wk = 0; wk < Bsc.weekN; wk++) {
 			string itStr = com2Str(i, wk);
@@ -118,7 +118,7 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 			}
 		}//wk
 	}//i
-	 //»ú×é-----------------------------------
+	 //æœºç»„-----------------------------------
 	GRBVar sGRB[Iunit][Iwks];
 	for (int k = 0; k < Bsc.unitN; k++) {
 		for (int wk = 0; wk < Bsc.weekN; wk++) {
@@ -127,8 +127,8 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 			sGRB[k][wk] = model.addVar(0, 1, 0, GRB_BINARY, "sGRB" + ktStr);
 		}
 	}//k
-	 //Ô¼ÊøÌõ¼ş--------------------------------
-	 //ÏµÍ³ÔËĞĞCSYS
+	 //çº¦æŸæ¡ä»¶--------------------------------
+	 //ç³»ç»Ÿè¿è¡ŒCSYS
 	for (int wk = 0; wk < Bsc.weekN; wk++) {
 		GRBLinExpr exprG = 0,
 			exprS = 0;
@@ -141,7 +141,7 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 		model.addConstr(exprG, GRB_GREATER_EQUAL, Bsc.EYN[wk] - Bsc.maxEYN, "CSYS1(" + toStr(wk) + ")");//SUM(G)>=g <=> SUM(E)-EYN>=g-M
 		model.addConstr(exprS, GRB_GREATER_EQUAL, 0, "CSYS2(" + toStr(wk) + ")");//SUM(XS)>=x
 	}
-	//µçÕ¾×°»úÈİÁ¿×é³ÉCMW
+	//ç”µç«™è£…æœºå®¹é‡ç»„æˆCMW
 	for (int i = 0; i < Bsc.plantN; i++) {
 		for (int wk = 0; wk < Bsc.weekN; wk++) {
 			string itStr = com2Str(i, wk);
@@ -152,7 +152,7 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 			//model.addConstr(expr, GRB_LESS_EQUAL, 0, "CMW3" + itStr);//E<=XW*24hrs*7days
 		}
 	}
-	//ÏµÍ³±¸ÓÃÈİÁ¿ĞèÇóCRESV
+	//ç³»ç»Ÿå¤‡ç”¨å®¹é‡éœ€æ±‚CRESV
 	for (int wk = 0; wk < Bsc.weekN; wk++) {
 		GRBLinExpr expr = XR[0][wk];
 		for (int i = 1; i < Bsc.plantN; i++) {
@@ -161,7 +161,7 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 		model.addConstr(expr, GRB_GREATER_EQUAL, Bsc.Bresv[wk], "CRESV(" + toStr(wk) + ")");//SUM(XR)>=Bresv
 	}
 
-	//»ú×é¼ìĞŞ¼Æ»®CSU	
+	//æœºç»„æ£€ä¿®è®¡åˆ’CSU	
 	for (int k = 0; k < Bsc.unitN; k++) {
 		GRBLinExpr exprS = sGRB[k][0];
 		for (int wk = 1; wk < Bsc.weekN; wk++) {
@@ -187,7 +187,7 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 	//	model.addConstr(exprS, GRB_LESS_EQUAL, 1, "CSU5(" + toStr(k) + ")");//SUM(s)<=1
 	//}
 
-	//¼ìĞŞ¹¤×÷ÈİÁ¿CXW
+	//æ£€ä¿®å·¥ä½œå®¹é‡CXW
 	for (int wk = 0; wk < Bsc.weekN; wk++) {
 		for (int i = 0; i < Bsc.plantN; i++) {
 			GRBLinExpr expr = 0;
@@ -215,13 +215,13 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 	//	}
 	//}
 
-	//#************************	Ë®µçÌİ¼¶µ÷¶ÈÄ£ĞÍCH	*******************************************#//
+	//#************************	æ°´ç”µæ¢¯çº§è°ƒåº¦æ¨¡å‹CH	*******************************************#//
 	for (int i = 0; i < Bsc.resvrN; i++) {
 		for (int wk = 0; wk < Bsc.weekN; wk++) {
-			//ÊÜ×èÈİÁ¿
+			//å—é˜»å®¹é‡
 			GRBLinExpr expr = XD[i][wk] + Resvr[i].cDisTm[wk] * XM[i][wk];
 			model.addConstr(expr, GRB_EQUAL, Plant[i].CMW*Resvr[i].cDisTm[wk], "CH1" + com2Str(i, wk));//XD=(C-XM)*f(V)
-																									   //Ë®Á¿Æ½ºâ: V1=V0+(I0+SUM(Q0)-Q0)*dt
+																									   //æ°´é‡å¹³è¡¡: V1=V0+(I0+SUM(Q0)-Q0)*dt
 			int t1 = wk + 1;
 			if (t1 >= Bsc.weekN) t1 = 0;
 			expr = Vol[i][t1] - Vol[i][wk] + cofQtV * Qout[i][wk];
@@ -239,13 +239,13 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 	}//i
 
 
-	 //#***************************  ÈÕÄÚ¸ººÉÆ½ºâÄ£ĞÍCLD  **********************************************#//
+	 //#***************************  æ—¥å†…è´Ÿè·å¹³è¡¡æ¨¡å‹CLD  **********************************************#//
 	for (int wk = 0; wk < Bsc.weekN; wk++) {
 		double L0[Ihrs + 1], E0[Ihrs + 1];
 		updateLoadE(wk, L0, E0);
 
 		for (int i = 0; i < Bsc.plantN + 1; i++) {
-			//¸÷µç³§µÄÔÚ¸ººÉÍ¼ÖĞµÄÆğÊ¼Î»ÖÃ x(0)=0 x(N)=Dmax  x(n)<= x(n+1)		
+			//å„ç”µå‚çš„åœ¨è´Ÿè·å›¾ä¸­çš„èµ·å§‹ä½ç½® x(0)=0 x(N)=Dmax  x(n)<= x(n+1)		
 			if (i == 0) model.addConstr(x[i][wk], GRB_EQUAL, 0, "CLD1" + com2Str(i, wk));
 			model.addConstr(x[i][wk] - x[i - 1][wk], GRB_GREATER_EQUAL, 0, "CLD1" + com2Str(i, wk));
 		}//
@@ -256,10 +256,10 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 				exprK += v[i][k][wk];
 				exprI += v[k][i][wk];
 			}//k
-			 //Ä³Ò»µç³§±ØÈ»´¦ÓÚÄ³Ò»¸ººÉÇø¼ä
+			 //æŸä¸€ç”µå‚å¿…ç„¶å¤„äºæŸä¸€è´Ÿè·åŒºé—´
 			model.addConstr(exprK, GRB_EQUAL, 1, "CLD2" + com2Str(i, wk));//SUM(x)=1
-																		  //Ä³Ò»¸ººÉÇø¼äÖ»ÄÜÓÉÆäÖĞ1¸öµç³§³Ğµ£
-			model.addConstr(exprI, GRB_EQUAL, 1, "CLD3" + com2Str(i, wk));//SUM(x)=1															  //¸÷µç³§µÄ¹¤×÷ÈİÁ¿
+																		  //æŸä¸€è´Ÿè·åŒºé—´åªèƒ½ç”±å…¶ä¸­1ä¸ªç”µå‚æ‰¿æ‹…
+			model.addConstr(exprI, GRB_EQUAL, 1, "CLD3" + com2Str(i, wk));//SUM(x)=1															  //å„ç”µå‚çš„å·¥ä½œå®¹é‡
 			for (int k = 0; k < Bsc.plantN; k++) {
 				if (k == 0)
 				{
@@ -320,7 +320,7 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 		}//i
 	}//wk
 
-	 //#************ É¾³ı¶¯Ì¬Êı×é ****************
+	 //#************ åˆ é™¤åŠ¨æ€æ•°ç»„ ****************
 	delete[] v;
 	delete[] ymin;
 	delete[] ymax;
@@ -328,9 +328,9 @@ void TSolutnMILP::modelProblem(GRBModel &model) {
 	delete[] wtMax;
 }
 ////////////////////////////////////////////////////////////////////////////////////
-//ÌáÈ¡ÓÅ»¯½á¹û
+//æå–ä¼˜åŒ–ç»“æœ
 void TSolutnMILP::transReslt() {
-	//µç³§¹ı³Ì
+	//ç”µå‚è¿‡ç¨‹
 	for (int wk = 0; wk < Bsc.weekN; wk++) {
 		float sm = 0;
 		for (int i = 0; i < Bsc.plantN; i++) {
@@ -346,7 +346,7 @@ void TSolutnMILP::transReslt() {
 		}//i
 		Bsc.EngyGD[wk] = sm - Bsc.EYN[wk];
 	}//wk
-	 //Ë®¿â¹ı³Ì
+	 //æ°´åº“è¿‡ç¨‹
 	for (int i = 0; i < Bsc.resvrN; i++) {
 		TResvrCHR A(i);
 		for (int wk = 0; wk < Bsc.weekN; wk++) {
@@ -359,7 +359,7 @@ void TSolutnMILP::transReslt() {
 			Resvr[i].P[wk] = (Plant[i].Engy[wk] + Plant[i].EngyGD[wk]) / (Bsc.dysWK*Bsc.cofE * 24);
 		}//wk
 	}//i
-	 //»ú×é¹ı³Ì
+	 //æœºç»„è¿‡ç¨‹
 	for (int k = 0; k < Bsc.unitN; k++) {
 		for (int wk = 0; wk < Bsc.weekN; wk++) {
 			double sm = 0;
@@ -381,7 +381,7 @@ void TSolutnMILP::transReslt() {
 	//}//k
 }
 /////////////////////////////////////////////////////////////////////////////////////
-//ÅÅĞò»ñµÃ¸ººÉË®Æ½ÓëµçÁ¿¹ØÏµ
+//æ’åºè·å¾—è´Ÿè·æ°´å¹³ä¸ç”µé‡å…³ç³»
 void TSolutnMILP::updateLoadE(int wk0, double x[Ihrs + 1], double y[Ihrs + 1]) {
 	x[0] = 0;
 	for (int i = 0; i < Bsc.hourN; i++) x[i + 1] = Bsc.Dmd[wk0][i];
@@ -401,7 +401,7 @@ void TSolutnMILP::updateLoadE(int wk0, double x[Ihrs + 1], double y[Ihrs + 1]) {
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////
-//¸üĞÂË®Í·ÓëÔ¼Êø
+//æ›´æ–°æ°´å¤´ä¸çº¦æŸ
 void TSolutnMILP::updateConstr() {
 
 }
