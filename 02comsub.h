@@ -1,7 +1,7 @@
 #pragma once
 
-//水库特性参数
-class TResvrCHR_ST        //水库特性曲线
+
+class TResvrCHR_ST 
 {
 public:
 	TResvrCHR_ST(int r0);
@@ -89,11 +89,11 @@ float TResvrCHR_ST::GetZdn(float q0)
 	return zd0;
 }
 
-//电站出力特性
-class TPlntHQP_ST   //电站出力特性
+
+class TPlntHQP_ST 
 {
 public:
-	TPlntHQP_ST(int plnt0, float hz, bool IsH);//IsH: 1-按水头；0-按水位;
+	TPlntHQP_ST(int plnt0, float hz, bool IsH);
 	float GetP(float q);
 	float GetQgen(float p);
 	float getPtQ();
@@ -162,11 +162,11 @@ float TPlntHQP_ST::GetQgen(float p)
 	return p * rate;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-//机组出力特性
+
 class TUnitHQP
 {
 public:
-	TUnitHQP(int u0, float hz, bool IsH);//IsH: 1-按水头；0-按水位;
+	TUnitHQP(int u0, float hz, bool IsH);
 	float GetP(float q);
 	float GetQgen(float p);
 	void  GetQzone(int zn);
@@ -227,9 +227,7 @@ void TUnitHQP::GetQzone(int zn)
 	zn_min = UType[typ0].Lower[khz0][zn] + ratio * (UType[typ0].Lower[khz0 + 1][zn] - UType[typ0].Lower[khz0][zn]);
 	zn_max = UType[typ0].Upper[khz0][zn] + ratio * (UType[typ0].Upper[khz0 + 1][zn] - UType[typ0].Upper[khz0][zn]);
 }
-///////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////
-//电厂
+
 class TPlntZones
 {
 public:
@@ -246,7 +244,7 @@ TPlntZones::TPlntZones(int plntIndx)
 	plnt0 = plntIndx;
 }
 //--------------------------------------------------------------------
-//由电厂耗水率估计一个水头
+
 float TPlntZones::GetHeadbyWrate(float wr0)
 {
 	float err = float(1.0E-5), ratio, v0, v1, h0;
@@ -272,11 +270,10 @@ float TPlntZones::GetHeadbyWrate(float wr0)
 	return h0;
 }
 //--------------------------------------------------------------------
-//合并重叠区间（例如：[10, 20] and [15, 40]=>[10, 40]）
-//并保存到电厂可行运行区间变量里
+
 void  TPlntZones::CombineOverlappedZones(int znN, float Lwr[], float Upr[])
 {
-	//按各区间下限Lwr[]从小到大重新排序
+
 	float tmp0, tmp1;
 	for (int i = 0; i < znN - 1; i++) {
 		for (int j = 0; j < znN - i - 1; j++) {
@@ -290,13 +287,13 @@ void  TPlntZones::CombineOverlappedZones(int znN, float Lwr[], float Upr[])
 			}
 		}
 	}//i
-	//各区间查看重叠进行合并
+
 	int rm = 0;
 	Plnt[plnt0].Lower[rm] = Lwr[0];
 	Plnt[plnt0].Upper[rm] = Upr[0];
 	rm++;
 	for (int i = 1; i < znN; i++) {
-		if (Plnt[plnt0].Lower[rm - 1] <= Lwr[i] && Lwr[i] <= Plnt[plnt0].Upper[rm - 1]) {//后一个区间与前一个区间有重叠
+		if (Plnt[plnt0].Lower[rm - 1] <= Lwr[i] && Lwr[i] <= Plnt[plnt0].Upper[rm - 1]) {//鍚庝竴涓尯闂翠笌鍓嶄竴涓尯闂存湁閲嶅彔
 			Plnt[plnt0].Lower[rm - 1] = min(Lwr[i], Plnt[plnt0].Lower[rm - 1]);
 			Plnt[plnt0].Upper[rm - 1] = max(Upr[i], Plnt[plnt0].Upper[rm - 1]);
 		}
@@ -309,18 +306,18 @@ void  TPlntZones::CombineOverlappedZones(int znN, float Lwr[], float Upr[])
 	Plnt[plnt0].Nzone = rm;
 }
 //--------------------------------------------------------------------
-//已知水头h0,获取电厂的所有可运行区间
+
 void TPlntZones::PlntComZones(float h0)
 {
 	int ux = 0, tx = 0, rm = 0;
-	float Lwr[10 * MPZONE], Upr[10 * MPZONE];//维数尽量大
+	float Lwr[10 * MPZONE], Upr[10 * MPZONE];
 	for (int i = 0; i < Plnt[plnt0].unitN; i++) {
 		ux = Plnt[plnt0].unitIndx[i];
 		tx = Unit[ux].typeIndx;
 		TUnitHQP A(ux, h0, true);
-		if (i == 0) {//把第一个机组的区间初始化给电厂可行区间
+		if (i == 0) {
 			rm = 0;
-			if (tx == 6 || tx == 11) UType[tx].Nzone = 2;//这里也存在这个问题
+			if (tx == 6 || tx == 11) UType[tx].Nzone = 2;
 			for (int j = 0; j < UType[tx].Nzone; j++) {
 				A.GetQzone(j);
 				Lwr[rm] = A.zn_min;
@@ -330,14 +327,14 @@ void TPlntZones::PlntComZones(float h0)
 		}
 		else {
 			rm = Plnt[plnt0].Nzone;
-			for (int m = 0; m < rm; m++) {//前面机组的组合可行区间
+			for (int m = 0; m < rm; m++) {
 				Lwr[m] = Plnt[plnt0].Lower[m];
 				Upr[m] = Plnt[plnt0].Upper[m];
 			}
 			if (tx == 6 || tx == 11) UType[tx].Nzone = 2;
 			for (int j = 0; j < UType[tx].Nzone; j++) {
 				A.GetQzone(j);
-				for (int k = 0; k < Plnt[plnt0].Nzone; k++) {//新机组各区间都与已确定的可行区间叠加
+				for (int k = 0; k < Plnt[plnt0].Nzone; k++) {
 					Lwr[rm] = Plnt[plnt0].Lower[k] + A.zn_min;
 					Upr[rm] = Plnt[plnt0].Upper[k] + A.zn_max;
 					rm++;
@@ -347,4 +344,5 @@ void TPlntZones::PlntComZones(float h0)
 		CombineOverlappedZones(rm, Lwr, Upr);//
 	}//i
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////
