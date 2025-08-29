@@ -5,10 +5,10 @@ public:
 	void	ReadFromTxt();
 	void	OutputTxt();
 private:
-	float getY(int N, float x[], float y[], float x0);//²åÖµº¯Êı
+	float getY(int N, float x[], float y[], float x0);
 };
 ////////////////////////////////////////////////////////////////////////////////////////
-//²åÖµº¯Êı
+
 float IOput_ST::getY(int N, float x[], float y[], float x0)
 {
 	float y0 = y[N - 1];
@@ -22,7 +22,7 @@ float IOput_ST::getY(int N, float x[], float y[], float x0)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-//Êı¾İ´ÓÎÄ±¾ÎÄ¼şÖĞ¶Á³ö
+
 void IOput_ST::ReadFromTxt()
 {
 	float maxLoad0[365];
@@ -45,7 +45,7 @@ void IOput_ST::ReadFromTxt()
 	ifstream inVZ(fileName + "A04VZ.txt");
 	ifstream inResvrTm(fileName + "A05resvrTm.txt");
 	ifstream inQloc(fileName + "A14Qloc.txt");
-	//Ë®¿â£º---------------------------------------------------------------
+
 	int tmp;
 	inResvr >> Bsc.resvrN;
 	for (int r = 0; r < Bsc.resvrN; r++) {
@@ -82,7 +82,7 @@ void IOput_ST::ReadFromTxt()
 	inVZ.close();
 	inResvrTm.close();
 	inQloc.close();
-	//µç³§£º---------------------------------------------------------------
+	//ç”µå‚ï¼š---------------------------------------------------------------
 	ifstream inPlnt(fileName + "A06plnt.txt");
 	ifstream inPlntTm(fileName + "A07plntTm.txt");
 	inPlnt >> Bsc.plntN;
@@ -95,13 +95,13 @@ void IOput_ST::ReadFromTxt()
 	}//p
 	inPlnt.close();
 	inPlntTm.close();
-	//»úĞÍ£º---------------------------------------------------------------
+
 	ifstream inUType(fileName + "A08utype.txt");
 	inUType >> Bsc.utypeN;
 	for (int t = 0; t < Bsc.utypeN; t++) {
 		inUType >> tmp >> UType[t].MD >> UType[t].plntIndx
 			>> UType[t].Nh >> UType[t].Nzone;
-		int AAA = UType[t].Nzone;//´Ë´¦¼ÇµÃÕÒÕÒÔ­Òò
+		int AAA = UType[t].Nzone;//æ­¤å¤„è®°å¾—æ‰¾æ‰¾åŸå› 
 		for (int h = 0; h < UType[t].Nh; h++) {
 			inUType >> tmp >> UType[t].Head[h]
 				>> UType[t].Level[h]
@@ -112,7 +112,7 @@ void IOput_ST::ReadFromTxt()
 			}//zn
 		}//h
 	}//t
-	//»ú×é£º---------------------------------------------------------------
+
 	ifstream inUnit(fileName + "A09unit.txt");
 	inUnit >> Bsc.unitN;
 	for (int u = 0; u < Bsc.unitN; u++) {
@@ -136,8 +136,7 @@ void IOput_ST::ReadFromTxt()
 	}
 	inY.close();
 }
-/////////////////////////////////////////////////////////////////////////////////////////////
-//Êä³ö½á¹ûÊı¾İµ½ÎÄ±¾ÎÄ¼şÖĞ
+
 void IOput_ST::OutputTxt()
 {
 	ofstream outSpl(fileName + "B01sql.txt");
@@ -219,4 +218,5 @@ void IOput_ST::OutputTxt()
 		outX<<endl;
 	}
 	outX.close();
+
 }
