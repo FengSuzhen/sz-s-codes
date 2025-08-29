@@ -15,19 +15,17 @@ private:
 ////////////////////////////////////////////
 void TPreINI_ST::mainINI()
 {
-	cofV = 1.0E2; //=1.0E4 亿m^3->万m^3; =1.0E2 百万m^3->万m^3
+	cofV = 1.0E2; //=1.0E4 浜縨^3->涓噈^3; =1.0E2 鐧句竾m^3->涓噈^3
 	VcharINI();
 	LinkINI();
 	VlimINI();
 	//WrateINI();
 	ZiniEstim();
 }
-////////////////////////////////////////////
-//初始化水库、电厂、机组之间的所属和连接关系
+
 void TPreINI_ST::LinkINI()
 {
 	int n;
-	// 获得向上连接关系Linkfrom[][]以及NLinkfrom[];
 	for (int k = 0; k < Bsc.resvrN; k++) {
 		n = 0;
 		for (int m = 0; m < k; m++)
@@ -39,7 +37,7 @@ void TPreINI_ST::LinkINI()
 		}
 		Resvr[k].Nlinkfrom = n;
 	}
-	//水库所包括的下属电厂
+
 	for (int i = 0; i < Bsc.resvrN; i++) {
 		n = 0;
 		for (int k = 0; k < Bsc.plntN; k++) {
@@ -50,10 +48,10 @@ void TPreINI_ST::LinkINI()
 		}
 		Resvr[i].plntN = n;
 	}
-	//电厂所包括的下属机组
+
 	for (int i = 0; i < Bsc.plntN; i++) {
 		n = 0;
-		for (int u = 0; u <Bsc.unitN; u++) {//这里需要每次修改
+		for (int u = 0; u <Bsc.unitN; u++) {
 			if (Unit[u].plntIndx == i) {
 				Plnt[i].unitIndx[n] = u;
 				n++;
@@ -63,17 +61,17 @@ void TPreINI_ST::LinkINI()
 	}
 }
 ////////////////////////////////////////////
-//库容单位转换
+
 void TPreINI_ST::VcharINI()
 {
 	for (int r = 0; r <Bsc.resvrN; r++)
 	{
 		for (int k = 0; k < Resvr[r].Nvz; k++)
 			Resvr[r].Vup[k] *= cofV;
-	}//单位转换为万m3
+	}
 }
 ////////////////////////////////////////////
-//把水位约束转化为蓄水量约束
+
 void TPreINI_ST::VlimINI()
 {
 	for (int r = 0; r < Bsc.resvrN; r++) {
@@ -87,7 +85,7 @@ void TPreINI_ST::VlimINI()
 	}
 }
 ////////////////////////////////////////////
-//由机组耗水率获得电厂耗水率
+
 //void TPreINI_ST::WrateINI()
 //{
 //	int u0, t0, uk;
@@ -96,7 +94,7 @@ void TPreINI_ST::VlimINI()
 //		u0 = Plnt[i].unitIndx[0];
 //		t0 = Unit[u0].typeIndx;
 //		wr = Plnt[i].WrateAVG;
-//		Plnt[i].Nh = UType[t0].Nh;//这里和前面输入数据发生地错误一致
+//		Plnt[i].Nh = UType[t0].Nh;
 //		if (i == 10) Plnt[i].Nh = 18;
 //		for (int h = 0; h < Plnt[i].Nh; h++) {
 //			Plnt[i].Head[h] = UType[t0].Head[h];
@@ -108,7 +106,7 @@ void TPreINI_ST::VlimINI()
 //				sm += A.rate;
 //			}
 //			Plnt[i].Wrate[h] = sm * Bsc.cofP / max(1, Plnt[i].unitN);
-//			if (h == 0) wr = min(wr, Plnt[i].Wrate[h]);           //矫正WrateAVG
+//			if (h == 0) wr = min(wr, Plnt[i].Wrate[h]);           //鐭WrateAVG
 //			if (h == Plnt[i].Nh - 1) wr = max(wr, Plnt[i].Wrate[h]);
 //		}//h
 //		for (int t = 0; t < MTIME; t++) Plnt[i].wrateTm[t] = wr;
@@ -116,7 +114,7 @@ void TPreINI_ST::VlimINI()
 //	}//i
 //}
 /////////////////////////////////////////////////
-//估算初始水位
+
 void  TPreINI_ST::ZiniEstim()
 {
 	//int j;
@@ -128,3 +126,4 @@ void  TPreINI_ST::ZiniEstim()
 	}//r
 }
 /////////////////////////////////////////////////////////////////////////////////////////
+
